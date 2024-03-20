@@ -7,6 +7,7 @@ const messageHandler = require('./middlewares/message-handler')
 const passport = require('./config/passport')
 const { getUser } = require('./helpers/auth-helpers')
 const handlebarsHelpers = require('./helpers/handlebars-helpers')
+const methodOverride = require('method-override')
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -23,6 +24,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash())
 app.use(messageHandler)
+app.use(methodOverride('_method'))
 app.use((req, res, next) => {
   res.locals.user = getUser(req)
   next()
