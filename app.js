@@ -8,6 +8,7 @@ const passport = require('./config/passport')
 const { getUser } = require('./helpers/auth-helpers')
 const handlebarsHelpers = require('./helpers/handlebars-helpers')
 const methodOverride = require('method-override')
+const path = require('path')
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -25,6 +26,7 @@ app.use(passport.session())
 app.use(flash())
 app.use(messageHandler)
 app.use(methodOverride('_method'))
+app.use('/upload', express.static(path.join(__dirname, 'upload')))
 app.use((req, res, next) => {
   res.locals.user = getUser(req)
   next()
