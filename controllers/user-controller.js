@@ -27,7 +27,6 @@ const userController = {
     res.render('signin')
   },
   signIn: (req, res) => {
-    // req.flash('success_msg', '成功登入！')
     res.redirect('/restaurants')
   },
   logout: (req, res) => {
