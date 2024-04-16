@@ -6,7 +6,8 @@ const should = chai.should()
 const app = require('../app')
 const { createModelMock, createControllerProxy, mockRequest, mockResponse, mockNext } = require('../helpers/unit-test-helper');
 
-describe('# R01', () => {
+describe('# R01', () => function() {
+  this.timeout = 10000;
   describe('登入測試: POST /signin', function () {
     // 以下測試會發出請求，測試資料庫內是否有作業指定的使用者資料
     // 測試資料的來源是真實的資料庫
