@@ -1,0 +1,44 @@
+<h1>餐廳後台</h1>
+{{> admin-restaurant-tabs route='users'}}
+<br />
+<br />
+<table class="table align-middle">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>姓名</th>
+      <th>電子郵件</th>
+      <th>角色</th>
+      <th>#</th>
+
+    </tr>
+  </thead>
+  <tbody>
+    {{#each users}}
+    <tr>
+      <th scope="row">{{this.id}}</th>
+      <td>{{this.name}}</td>
+      <td>{{this.email}}</td>
+      <td>
+        {{#if this.isAdmin}}
+        admin
+        {{else}}
+        user
+        {{/if}}
+      </td>
+      <td>
+        {{#if this.isAdmin}}
+        <form action="/admin/users/{{this.id}}?_method=PATCH" method="POST">
+          <button type="submit" class="btn btn-link">set as user</button>
+        </form>
+        </a>
+        {{else}}
+        <form action="/admin/users/{{this.id}}?_method=PATCH" method="POST">
+          <button type="submit" class="btn btn-link">set as admin</button>
+        </form>
+        {{/if}}
+      </td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
