@@ -11,6 +11,7 @@ router.use('/admin', authenticatedAdmin, admin)
 router.get('/signup', userController.signUpPage)
 router.post('/signup', userController.signUp)
 router.get('/restaurants', authenticated, restaurantController.getRestaurants)
+router.get('/restaurants/:id', authenticated, restaurantController.getRestaurant)
 router.get('/signin', userController.signInPage)
 router.post('/signin', passport.authenticate('local', {
   failureRedirect: '/signin',
