@@ -12,6 +12,7 @@ router.get('/signup', userController.signUpPage)
 router.post('/signup', userController.signUp)
 router.get('/restaurants', authenticated, restaurantController.getRestaurants)
 router.get('/restaurants/:id', authenticated, restaurantController.getRestaurant)
+router.get('/restaurants/:id/dashboard', authenticated, restaurantController.getDashboard)
 router.get('/signin', userController.signInPage)
 router.post('/signin', passport.authenticate('local', {
   failureRedirect: '/signin',
