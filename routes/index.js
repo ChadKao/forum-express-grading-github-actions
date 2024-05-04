@@ -23,6 +23,7 @@ router.post('/signin', passport.authenticate('local', {
 router.get('/logout', userController.logout)
 router.post('/comments', authenticated, commentController.postComment)
 router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
+router.get('/users/:id', authenticated, userController.getUser)
 
 router.use('/', (req, res) => { res.redirect('/restaurants') })
 router.use(generalErrorHandler)
