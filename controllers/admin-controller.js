@@ -74,7 +74,7 @@ const adminController = {
         })
       })
       .then(() => {
-        req.flash('success_msg', 'restaurant was successfully to update')
+        req.flash('success_msg', 'restaurant has been successfully updated')
         res.redirect('/admin/restaurants')
       })
       .catch(err => next(err))

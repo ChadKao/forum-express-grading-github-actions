@@ -7,6 +7,7 @@ const commentController = require('../controllers/comment-controller')
 const { generalErrorHandler } = require('../middlewares/error-handler')
 const passport = require('../config/passport')
 const { authenticated, authenticatedAdmin } = require('../middlewares/auth')
+const upload = require('../middlewares/multer')
 
 router.use('/admin', authenticatedAdmin, admin)
 router.get('/signup', userController.signUpPage)
@@ -24,8 +25,14 @@ router.get('/logout', userController.logout)
 router.post('/comments', authenticated, commentController.postComment)
 router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
 router.get('/users/:id', authenticated, userController.getUser)
+router.get('/users/:id/edit', authenticated, userController.editUser)
+router.put('/users/:id', upload.single('image'), authenticated, userController.putUser)
 
-router.use('/', (req, res) => { res.redirect('/restaurants') })
+router.use('/', (req, res) => {
+  req.flash('error_messages', res.locals.error_messages[0])
+  // 只有貼上無效或是無權限的網址會被導至跟目錄並在再次跳轉的頁面上顯示錯誤訊息
+  return res.redirect('/restaurants')
+})
 router.use(generalErrorHandler)
 
 module.exports = router
