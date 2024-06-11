@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs')
 const db = require('../models')
-const User = db.User
+const { User, Restaurant, Comment } = db
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const userController = {
@@ -37,7 +37,9 @@ const userController = {
     res.redirect('/signin')
   },
   getUser: (req, res, next) => {
-    return User.findByPk(req.params.id, { raw: true })
+    return User.findByPk(req.params.id, {
+      include: { model: Comment, include: Restaurant }
+    })
       .then(user => {
         if (!user) throw new Error('User not found')
         // 測試未設定passport故暫時隱藏以下代碼
@@ -45,6 +47,8 @@ const userController = {
         //   req.flash('error_messages', '權限不足')
         //   return res.redirect('back')
         // }
+        user = user.toJSON()
+        user.commentCount = user.Comments ? user.Comments.length : 0
         return res.render('users/profile', { user })
       })
       .catch(next)
