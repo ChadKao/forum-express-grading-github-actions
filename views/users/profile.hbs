@@ -1,0 +1,41 @@
+<div class="row mb-5">
+  <div class="col-md-4">
+    <img class="img-responsive center-block mb-5" src="{{user.image}}"
+      style="width: 250px; transition: opacity 0.5s; opacity:0;" onload="this.style.opacity=1;">
+  </div>
+  <div class="col-md-8">
+    <div class="well">
+      <ul class="list-unstyled">
+        <li><strong>名稱:</strong> {{user.name}}</li>
+        <li><strong>帳號:</strong> {{user.email}}</li>
+        {{#if user.isAdmin}}
+        <li><strong>身分:</strong> 管理員</li>
+        {{else}}
+        <li><strong>身分:</strong> 一般用戶</li>
+        {{/if}}
+      </ul>
+    </div>
+    <a href="/users/{{user.id}}/edit">
+      <button type="submit" class="btn btn-primary">edit</button>
+    </a>
+  </div>
+  <hr>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    {{user.commentCount}} 間已評論餐廳
+  </div>
+  <div class="row mt-3">
+    {{#each user.Comments}}
+    <div class="col-md-4">
+      <div class="card mb-4 shadow-sm">
+        <a href="/restaurants/{{this.restaurantId}}">
+          <img class="card-img-top img-fluid" src="{{this.Restaurant.image}}" alt="Card image cap" width="286px"
+            height="180px" style="transition: opacity 0.5s; opacity:0;" onload="this.style.opacity=1;">
+        </a>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>

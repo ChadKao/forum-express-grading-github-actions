@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs')
 const db = require('../models')
-const User = db.User
+const { User, Restaurant, Comment } = db
+const { localFileHandler } = require('../helpers/file-helpers')
+
 const userController = {
   signUpPage: (req, res) => {
     res.render('signup')
@@ -34,12 +36,56 @@ const userController = {
     req.logout()
     res.redirect('/signin')
   },
-  getUser: (req, res) => {
-    return User.findByPk(req.params.id)
+  getUser: (req, res, next) => {
+    return User.findByPk(req.params.id, {
+      include: { model: Comment, include: Restaurant }
+    })
       .then(user => {
         if (!user) throw new Error('User not found')
-        return res.render('profile', { user: user.toJSON() })
+        // 測試未設定passport故暫時隱藏以下代碼
+        // if (user.id !== req.user.id) {
+        //   req.flash('error_messages', '權限不足')
+        //   return res.redirect('back')
+        // }
+        user = user.toJSON()
+        user.commentCount = user.Comments ? user.Comments.length : 0
+        return res.render('users/profile', { user })
       })
+      .catch(next)
+  },
+  editUser: (req, res, next) => {
+    return User.findByPk(req.params.id, { raw: true })
+      .then(user => {
+        if (!user) throw new Error('User not found')
+        // 測試未設定passport故暫時隱藏以下代碼
+        // if (user.id !== req.user.id) {
+        //   req.flash('error_messages', '權限不足')
+        //   return res.redirect('back')
+        // }
+        return res.render('users/edit', { user })
+      })
+      .catch(next)
+  },
+  putUser: (req, res, next) => {
+    const { name } = req.body
+    if (!name) throw new Error('User name is required!')
+    const { file } = req
+    return Promise.all([
+      User.findByPk(req.params.id),
+      localFileHandler(file)
+    ])
+      .then(([user, filePath]) => {
+        if (!user) throw new Error("User didn't exist!")
+        return user.update({
+          name,
+          image: filePath || user.image
+        })
+      })
+      .then(user => {
+        req.flash('success_messages', '使用者資料編輯成功')
+        res.redirect(`/users/${user.id}`)
+      })
+      .catch(err => next(err))
   }
 }
 module.exports = userController
