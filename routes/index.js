@@ -10,12 +10,15 @@ const { authenticated, authenticatedAdmin } = require('../middlewares/auth')
 const upload = require('../middlewares/multer')
 
 router.use('/admin', authenticatedAdmin, admin)
+
 router.get('/signup', userController.signUpPage)
 router.post('/signup', userController.signUp)
+
 router.get('/restaurants', authenticated, restaurantController.getRestaurants)
 router.get('/restaurants/feeds', authenticated, restaurantController.getFeeds)
 router.get('/restaurants/:id', authenticated, restaurantController.getRestaurant)
 router.get('/restaurants/:id/dashboard', authenticated, restaurantController.getDashboard)
+
 router.get('/signin', userController.signInPage)
 router.post('/signin', passport.authenticate('local', {
   failureRedirect: '/signin',
@@ -23,16 +26,23 @@ router.post('/signin', passport.authenticate('local', {
   successFlash: true
 }), userController.signIn)
 router.get('/logout', userController.logout)
+
 router.post('/comments', authenticated, commentController.postComment)
 router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
+
 router.get('/users/top', authenticated, userController.getTopUsers)
 router.get('/users/:id', authenticated, userController.getUser)
 router.get('/users/:id/edit', authenticated, userController.editUser)
 router.put('/users/:id', upload.single('image'), authenticated, userController.putUser)
+
 router.post('/favorite/:restaurantId', authenticated, userController.addFavorite)
 router.delete('/favorite/:restaurantId', authenticated, userController.removeFavorite)
+
 router.post('/like/:restaurantId', authenticated, userController.addLike)
 router.delete('/like/:restaurantId', authenticated, userController.removeLike)
+
+router.post('/following/:userId', authenticated, userController.addFollowing)
+router.delete('/following/:userId', authenticated, userController.removeFollowing)
 
 router.use('/', (req, res) => {
   req.flash('error_messages', res.locals.error_messages[0])
