@@ -38,7 +38,12 @@ const userController = {
   },
   getUser: (req, res, next) => {
     return User.findByPk(req.params.id, {
-      include: { model: Comment, include: Restaurant }
+      include: [
+        { model: Comment, include: Restaurant },
+        { model: Restaurant, as: 'FavoritedRestaurants' },
+        { model: User, as: 'Followers' },
+        { model: User, as: 'Followings' }
+      ]
     })
       .then(user => {
         if (!user) throw new Error('User not found')
@@ -48,8 +53,26 @@ const userController = {
         //   return res.redirect('back')
         // }
         user = user.toJSON()
+
+        const uniqueRestaurantIds = new Set()
+        const uniqueComments = user.Comments?.filter(comment => {
+          if (uniqueRestaurantIds.has(comment.restaurantId)) {
+            return false // 如果已經有這個 restaurantId，則過濾掉這個評論
+          } else {
+            uniqueRestaurantIds.add(comment.restaurantId) // 否則加入 Set 並保留評論
+            return true
+          }
+        })
+
+        user.Comments = uniqueComments
         user.commentCount = user.Comments ? user.Comments.length : 0
-        return res.render('users/profile', { user })
+
+        const isFollowed = req.user?.Followings.some(f => f.id === user.id)
+        const isNotSelf = req.user?.id !== user.id
+        // 確認非本人才能追蹤/取消追蹤該對象(出現追蹤/取消追蹤按鈕)
+        const isSelf = req.user?.id === user.id
+        // 確認為本人才能編輯(出現編輯按鈕)
+        return res.render('users/profile', { user, isFollowed, isNotSelf, isSelf })
       })
       .catch(next)
   },
@@ -62,6 +85,13 @@ const userController = {
         //   req.flash('error_messages', '權限不足')
         //   return res.redirect('back')
         // }
+        // 測試未設定req.user 因此做以下設定
+        if (req.user) {
+          if (user.id !== req.user.id) {
+            req.flash('error_messages', '權限不足')
+            return res.redirect('back')
+          }
+        }
         return res.render('users/edit', { user })
       })
       .catch(next)
