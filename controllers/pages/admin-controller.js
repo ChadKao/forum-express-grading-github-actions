@@ -14,16 +14,12 @@ const adminController = {
       .catch(err => next(err))
   },
   postRestaurant: (req, res, next) => {
-    if (!req.body.name) throw new Error('Restaurant name is required!')
-    const { file } = req
-
-    localFileHandler(file)
-      .then(filePath => Restaurant.create({ ...req.body, image: filePath || null }))
-      .then(() => {
-        req.flash('success_msg', 'restaurant was successfully created')
-        res.redirect('/admin/restaurants')
-      })
-      .catch(err => next(err))
+    adminServices.postRestaurant(req, (err, data) => {
+      if (err) return next(err)
+      req.flash('success_messages', 'restaurant was successfully created')
+      req.session.createdData = data
+      return res.redirect('/admin/restaurants')
+    })
   },
   getRestaurant: (req, res, next) => {
     Restaurant.findByPk(req.params.id, {
