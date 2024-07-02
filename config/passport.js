@@ -1,7 +1,11 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
+const passportJWT = require('passport-jwt')
 const bcrypt = require('bcryptjs')
 const { User, Restaurant } = require('../models')
+
+const JWTStrategy = passportJWT.Strategy
+const ExtractJWT = passportJWT.ExtractJwt
 // set up Passport strategy
 passport.use(new LocalStrategy(
   // customize user field
@@ -15,13 +19,33 @@ passport.use(new LocalStrategy(
     User.findOne({ where: { email } })
       .then(user => {
         if (!user) return cb(null, false, { type: 'error_messages', message: '帳號或密碼錯誤' })
-        bcrypt.compare(password, user.password).then(res => {
-          if (!res) return cb(null, false, { type: 'error_messages', message: '帳號或密碼錯誤' })
-          return cb(null, user, { type: 'success_msg', message: '登入成功!' })
-        })
+        bcrypt.compare(password, user.password)
+          .then(res => {
+            if (!res) return cb(null, false, { type: 'error_messages', message: '帳號或密碼錯誤' })
+            return cb(null, user, { type: 'success_msg', message: '登入成功!' })
+          })
+          .catch(err => cb(err))
       })
+      .catch(err => cb(err))
   }
 ))
+
+const jwtOptions = {
+  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET
+}
+passport.use(new JWTStrategy(jwtOptions, (jwtPayload, cb) => {
+  User.findByPk(jwtPayload.id, {
+    include: [
+      { model: Restaurant, as: 'FavoritedRestaurants' },
+      { model: Restaurant, as: 'LikedRestaurants' },
+      { model: User, as: 'Followers' },
+      { model: User, as: 'Followings' }
+    ]
+  })
+    .then(user => cb(null, user))
+    .catch(err => cb(err))
+}))
 // serialize and deserialize user
 passport.serializeUser((user, cb) => {
   cb(null, user.id)

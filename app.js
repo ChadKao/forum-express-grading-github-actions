@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express')
 const { pages, apis } = require('./routes')
 const handlebars = require('express-handlebars')
@@ -11,7 +13,6 @@ const methodOverride = require('method-override')
 const path = require('path')
 const app = express()
 const port = process.env.PORT || 3000
-require('dotenv').config()
 
 app.engine('hbs', handlebars({ extname: '.hbs', helpers: handlebarsHelpers }))
 app.set('view engine', 'hbs')
